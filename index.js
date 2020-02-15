@@ -34,7 +34,11 @@
   return maxId + 1
  }
 
- app.post('/climbs', (request, response) => {
+ app.get('/info', (request, response) => {
+   response.send(`<h1>there are ${climbs.length} climbs in the database</h1><h2>The date is ${new Date()}.</h2>`)
+ })
+
+ app.post('/api/climbs', (request, response) => {
   const body = request.body
 
   if (!body.result | !body.personalDifficulty | !body.setDifficulty) {
@@ -61,11 +65,11 @@
    response.send('<h1>hello world</h1>')
  })
 
- app.get('/climbs', (request, response) => {
+ app.get('/api/climbs', (request, response) => {
    response.json(climbs)
  })
 
- app.get('/climbs/:id', (request, response) => {
+ app.get('/api/climbs/:id', (request, response) => {
    const id = Number(request.params.id)
    const climb = climbs.find(climb => climb.id === id)
    if (climb) {
@@ -75,12 +79,28 @@
    }
  })
 
- app.delete('/climbs/:id', (request, response) => {
+ app.delete('/api/climbs/:id', (request, response) => {
   const id = Number(request.params.id)
   climbs = climbs.filter(climb => climb.id !== id )
 
   response.status(204).end()
  })
+
+ const requestLogger = (request, response, next) => {
+  console.log('Method:', request.method)
+  console.log('Path:  ', request.path)
+  console.log('Body:  ', request.body)
+  console.log('---')
+  next()
+ }
+
+ app.use(requestLogger)
+
+ const unknownEndpoint = (request, response) => {
+   response.status(404).send({ error: 'unknown endpoint' })
+ }
+
+ app.use(unknownEndpoint)
 
  const PORT = 3001
  app.listen(PORT, () => {
