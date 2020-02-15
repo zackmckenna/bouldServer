@@ -1,8 +1,13 @@
- const express = require('express')
- const app = express()
- const bodyParser = require('body-parser')
+const express = require('express')
+const app = express()
+const bodyParser = require('body-parser')
+const cors = require('cors')
+const morgan = require('morgan')
 
- app.use(bodyParser.json())
+app.use(bodyParser.json())
+morgan.token('data', function (request,response) { return JSON.stringify(request.body)})
+app.use(morgan(':data'))
+app.use(cors())
 
  let climbs = [
    {
@@ -66,7 +71,7 @@
  })
 
  app.get('/api/climbs', (request, response) => {
-   response.json(climbs)
+   response.json(climbs).status(204)
  })
 
  app.get('/api/climbs/:id', (request, response) => {
