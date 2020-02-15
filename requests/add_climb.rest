@@ -1,0 +1,8 @@
+POST http://localhost:3001/climbs
+Content-Type: application/json
+
+{
+  "personalDifficulty": 2,
+  "setDifficulty": 3,
+  "result": "redpoint"
+}
