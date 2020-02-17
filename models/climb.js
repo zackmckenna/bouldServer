@@ -12,11 +12,21 @@ mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
   })
 
 const climbSchema = new mongoose.Schema({
-  personalDifficulty: Number,
-  setDifficulty: Number,
+  personalDifficulty: {
+    type: Number,
+    required: true
+  },
+  setDifficulty: {
+    type: Number,
+    required: true
+  },
   result: String,
   completed: Boolean,
-  date: Date
+  date: {
+    type: Date,
+    required: true
+  },
+  note: String
 })
 
 climbSchema.set('toJSON', {

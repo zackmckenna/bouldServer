@@ -40,8 +40,9 @@ mongoose.set('useFindAndModify', false)
 
   if (error.name === 'CastError' && error.kind === 'ObjectId') {
     return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
   }
-
   next(error)
 }
 
@@ -61,11 +62,16 @@ app.use(errorHandler)
  app.post('/api/climbs', (request, response) => {
   const body = request.body
 
+  if(body.personalDifficulty === undefined || body.setDifficulty === undefined) {
+    return response.status(400).json({ error: 'content missing' })
+  }
+
   if (!body.result | !body.personalDifficulty | !body.setDifficulty) {
     return response.status(400).json({
       error: 'content missing'
     })
   }
+
   const climb = new Climb({
     personalDifficulty: body.personalDifficulty,
     setDifficulty: body.setDifficulty,
@@ -76,9 +82,11 @@ app.use(errorHandler)
     holdsReached: body.holdsReached || 0
   })
 
-  climb.save().then(savedClimb => {
+  climb.save()
+    .then(savedClimb => {
     response.json(savedClimb.toJSON())
   })
+    .catch(error => next(error))
  })
 
  app.get('/', (request, response) => {
