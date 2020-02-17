@@ -10,7 +10,6 @@ app.use(bodyParser.json())
 morgan.token('data', function (request,response) { return JSON.stringify(request.body)})
 app.use(morgan(':data'))
 app.use(cors())
-mongoose.set('useFindAndModify', false)
 
  let climbs = [
    {
@@ -82,10 +81,12 @@ app.use(errorHandler)
     holdsReached: body.holdsReached || 0
   })
 
-  climb.save()
-    .then(savedClimb => {
-    response.json(savedClimb.toJSON())
-  })
+  climb
+    .save()
+    .then(savedClimb => savedClimb.toJSON())
+    .then(savedAndFormattedClimb => {
+      response.json(savedAndFormattedClimb)
+    })
     .catch(error => next(error))
  })
 
