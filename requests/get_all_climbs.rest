@@ -1,1 +1,1 @@
-GET http://localhost:3001/climbs
+GET http://localhost:3001/api/climbs

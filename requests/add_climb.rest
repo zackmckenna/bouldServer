@@ -4,5 +4,6 @@ Content-Type: application/json
 {
   "personalDifficulty": 2,
   "setDifficulty": 3,
-  "result": "redpoint"
+  "result": "redpoint",
+  "completed": true
 }

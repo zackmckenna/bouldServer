@@ -1,13 +1,16 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
+const Climb = require('./models/climb')
 
 app.use(bodyParser.json())
 morgan.token('data', function (request,response) { return JSON.stringify(request.body)})
 app.use(morgan(':data'))
 app.use(cors())
+mongoose.set('useFindAndModify', false)
 
  let climbs = [
    {
@@ -32,6 +35,18 @@ app.use(cors())
   }
  ]
 
+ const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError' && error.kind === 'ObjectId') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
+
  const generateId = () => {
   const maxId = climbs.length > 0
   ? Math.max(...climbs.map(n => n.id))
@@ -51,7 +66,7 @@ app.use(cors())
       error: 'content missing'
     })
   }
-  const climb = {
+  const climb = new Climb({
     personalDifficulty: body.personalDifficulty,
     setDifficulty: body.setDifficulty,
     result: body.result,
@@ -59,11 +74,11 @@ app.use(cors())
     id: generateId(),
     date: new Date(),
     holdsReached: body.holdsReached || 0
-  }
+  })
 
-  climbs = climbs.concat(climb)
-
-  response.json(climb)
+  climb.save().then(savedClimb => {
+    response.json(savedClimb.toJSON())
+  })
  })
 
  app.get('/', (request, response) => {
@@ -74,21 +89,42 @@ app.use(cors())
    response.json(climbs).status(204)
  })
 
- app.get('/api/climbs/:id', (request, response) => {
-   const id = Number(request.params.id)
-   const climb = climbs.find(climb => climb.id === id)
-   if (climb) {
-     response.json(climb)
-   } else {
-     response.status(404).end()
-   }
+ app.get('/api/climbs/:id', (request, response, next) => {
+   Climb.findById(request.params.id)
+    .then(climb => {
+      if (climb) {
+        response.json(climb.toJSON())
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
  })
 
- app.delete('/api/climbs/:id', (request, response) => {
-  const id = Number(request.params.id)
-  climbs = climbs.filter(climb => climb.id !== id )
+ app.delete('/api/climbs/:id', (request, response, next) => {
+  Climb.findByIdAndRemove(request.params.id)
+  .then(result => {
+    response.status(204).end()
+  })
+  .catch(error => next(error))
+ })
 
-  response.status(204).end()
+ app.put('/api/climbs/:id', (request, response, next) => {
+   const body = request.body
+
+   const climb = {
+    personalDifficulty: body.personalDifficulty,
+    setDifficulty: body.setDifficulty,
+    result: body.result,
+    completed: body.completed || false,
+    holdsReached: body.holdsReached
+   }
+
+   Climb.findByIdAndUpdate(request.params.id, climb, { new: true })
+   .then(updatedClimb => {
+     response.json(updatedClimb.toJSON())
+   })
+   .catch(error => next(error))
  })
 
  const requestLogger = (request, response, next) => {
