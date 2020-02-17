@@ -2,7 +2,8 @@ const climbsRouter = require('express').Router()
 const Climb = require('../models/climb')
 
 climbsRouter.get('/', async (request, response) => {
-  const climbs = await Climb.find({})
+  const climbs = await Climb
+    .find({}).populate('user', { username: 1, name: 1 })
   response.json(climbs.map(climb => climb.toJSON()))
 })
 
@@ -21,13 +22,20 @@ climbsRouter.get('/:id', (request, response, next) => {
 climbsRouter.post('/', async (request, response, next) => {
   const body = request.body
 
+  const user = await user.findById(body.userId)
+
   const climb = new Climb({
-    content: body.content,
-    important: body.important || false,
-    date: new Date()
+    personalDifficulty: body.personalDifficulty,
+    setDifficulty: body.setDifficulty,
+    result: body.result,
+    holdReached: body.holdReached,
+    date: new Date(),
+    user: user._id
   })
   try {
     const savedClimb = await climb.save()
+    user.climbs = user.climbs.concat(savedClimb._id)
+    await user.save()
     response.json(savedClimb.toJSON())
   } catch(exception) {
     next(exception)

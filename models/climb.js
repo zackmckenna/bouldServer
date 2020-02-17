@@ -15,7 +15,11 @@ const climbSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
-  note: String
+  note: String,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
 })
 
 climbSchema.set('toJSON', {
