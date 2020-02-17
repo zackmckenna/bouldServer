@@ -3,11 +3,11 @@ const mongoose = require('mongoose')
 const climbSchema = new mongoose.Schema({
   personalDifficulty: {
     type: Number,
-    required: true
+    required: false
   },
   setDifficulty: {
     type: Number,
-    required: true
+    required: false
   },
   result: String,
   completed: Boolean,

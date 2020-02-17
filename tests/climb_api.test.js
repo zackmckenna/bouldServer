@@ -67,6 +67,30 @@ test('a specific climb is within the returned climbs', async () => {
   )
 })
 
+test('a new climb can be added', async () => {
+  const newClimb = {
+    personalDifficulty: 1,
+    setDifficulty: 3,
+    result: 'flash',
+    completed: false,
+  }
+
+  await api
+    .post('/api/climbs')
+    .send(newClimb)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/climbs')
+
+  const result = response.body.map(r => r.result)
+
+  expect(response.body.length).toBe(initialClimbs.length + 1)
+  expect(result).toContain(
+    'flash'
+  )
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
