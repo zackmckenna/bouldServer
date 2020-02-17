@@ -18,7 +18,7 @@ climbsRouter.get('/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-climbsRouter.post('/', (request, response, next) => {
+climbsRouter.post('/', async (request, response, next) => {
   const body = request.body
 
   const climb = new Climb({
@@ -26,12 +26,12 @@ climbsRouter.post('/', (request, response, next) => {
     important: body.important || false,
     date: new Date()
   })
-
-  climb.save()
-    .then(savedClimb => {
-      response.json(savedClimb.toJSON())
-    })
-    .catch(error => next(error))
+  try {
+    const savedClimb = await climb.save()
+    response.json(savedClimb.toJSON())
+  } catch(exception) {
+    next(exception)
+  }
 })
 
 climbsRouter.delete('/:id', (request, response, next) => {
