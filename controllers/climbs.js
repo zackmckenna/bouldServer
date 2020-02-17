@@ -1,5 +1,14 @@
 const climbsRouter = require('express').Router()
 const Climb = require('../models/climb')
+const jwt = require('jsonwebtoken')
+
+const getTokenFrom = request => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    return authorization.substring(7)
+  }
+  return null
+}
 
 climbsRouter.get('/', async (request, response) => {
   const climbs = await Climb
@@ -22,17 +31,23 @@ climbsRouter.get('/:id', (request, response, next) => {
 climbsRouter.post('/', async (request, response, next) => {
   const body = request.body
 
-  const user = await user.findById(body.userId)
+  const token = getTokenFrom(request)
 
-  const climb = new Climb({
-    personalDifficulty: body.personalDifficulty,
-    setDifficulty: body.setDifficulty,
-    result: body.result,
-    holdReached: body.holdReached,
-    date: new Date(),
-    user: user._id
-  })
   try {
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+    if (!token || !decodedToken.id) {
+      return response.status(401).json({ error: 'token missing or invalid' })
+    }
+    const user = await user.findById(body.userId)
+
+    const climb = new Climb({
+      personalDifficulty: body.personalDifficulty,
+      setDifficulty: body.setDifficulty,
+      result: body.result,
+      holdReached: body.holdReached,
+      date: new Date(),
+      user: user._id
+    })
     const savedClimb = await climb.save()
     user.climbs = user.climbs.concat(savedClimb._id)
     await user.save()
