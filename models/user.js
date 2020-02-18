@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
   climbs: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Climbs'
+      ref: 'Climb'
     }
   ],
 })
