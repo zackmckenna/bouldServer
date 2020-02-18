@@ -3,6 +3,7 @@ const usersRouter = require('express').Router()
 const User = require('../models/user')
 
 usersRouter.get('/', async (request, response) => {
+  console.log('users GET')
   const users = await User.find({}).populate('climbs')
 
   response.json(users.map(u => u.toJSON()))
@@ -17,7 +18,9 @@ usersRouter.post('/', async (request, response, next) => {
 
     const user = new User({
       username: body.username,
-      name: body.name,
+      firstname: body.firstname,
+      lastname: body.lastname,
+      email: body.email,
       passwordHash,
     })
 

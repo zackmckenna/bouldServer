@@ -6,12 +6,17 @@ const userSchema = new mongoose.Schema({
     type: String,
     unique: true
   },
-  name: String,
   passwordHash: String,
-  notes: [
+  firstname: String,
+  lastname: String,
+  email: {
+    type: String,
+    unique: true
+  },
+  climbs: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Note'
+      ref: 'Climbs'
     }
   ],
 })
