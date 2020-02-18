@@ -47,11 +47,13 @@ climbsRouter.post('/', async (request, response, next) => {
       result: body.result,
       holdReached: body.holdReached,
       date: new Date(),
-      user: user._id
+      user: user.id
     })
+
     const savedClimb = await climb.save()
     user.climbs = user.climbs.concat(savedClimb._id)
     await user.save()
+
     response.json(savedClimb.toJSON())
   } catch(exception) {
     next(exception)
