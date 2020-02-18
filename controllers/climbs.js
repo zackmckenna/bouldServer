@@ -3,6 +3,7 @@ const Climb = require('../models/climb')
 const jwt = require('jsonwebtoken')
 
 const getTokenFrom = request => {
+  console.log('request', request)
   const authorization = request.get('authorization')
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
     return authorization.substring(7)
@@ -32,7 +33,7 @@ climbsRouter.post('/', async (request, response, next) => {
   const body = request.body
 
   const token = getTokenFrom(request)
-  console.log(token)
+  console.log('token', token)
   try {
     const decodedToken = jwt.verify(token, process.env.SECRET)
     if (!token || !decodedToken.id) {
