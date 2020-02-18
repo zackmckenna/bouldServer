@@ -32,7 +32,7 @@ climbsRouter.post('/', async (request, response, next) => {
   const body = request.body
 
   const token = getTokenFrom(request)
-
+  console.log(token)
   try {
     const decodedToken = jwt.verify(token, process.env.SECRET)
     if (!token || !decodedToken.id) {
