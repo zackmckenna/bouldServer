@@ -47,7 +47,7 @@ climbsRouter.post('/', async (request, response, next) => {
       result: body.result,
       holdReached: body.holdReached,
       date: new Date(),
-      user: user.id
+      user: user._id
     })
 
     const savedClimb = await climb.save()
